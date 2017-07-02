@@ -1,0 +1,89 @@
+<resources>
+    <string name="app_name">DeviceUserInfoReader</string>
+    <string name="alert_dialog_ok">OK</string>
+    <string name="alert_dialog_title">QR Code Processed...</string>
+    <string name="logged_in">Logged IN</string>
+    <string name="logged_out">Logged OUT</string>
+
+    <string name="scanner_activity">ZXing Scanner - Full Activity</string>
+    <string name="scanner_fragment_activity">ZXing Scanner - Full Fragment Activity</string>
+    <string name="simple_scanner_activity">ZXing Scanner - Simple Activity</string>
+    <string name="simple_scanner_fragment_activity">ZXing Scanner - Simple Fragment Activity</string>
+    <string name="full_screen_scanner_fragment_activity">ZXing Scanner - Full Screen Fragment Activity</string>
+    <string name="simple_activity_sample">Simple Activity Sample</string>
+    <string name="simple_fragment_sample">Simple Fragment Sample</string>
+    <string name="activity_sample">Full Activity Sample</string>
+    <string name="fragment_sample">Full Fragment Sample</string>
+    <string name="full_screen_sample">Full Screen Fragment Sample</string>
+    <string name="toggle_flash">Flash</string>
+    <string name="flash_on">Flash [ON]</string>
+    <string name="flash_off">Flash [OFF]</string>
+    <string name="auto_focus_on">Auto Focus [ON]</string>
+    <string name="auto_focus_off">Auto Focus [OFF]</string>
+    <string name="formats">Formats</string>
+    <string name="choose_formats">Choose Formats</string>
+    <string name="select_camera">Select a Camera</string>
+    <string name="ok_button">OK</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="scan_tips">\ " The two-dimensional code image alignment scan box to automatically scan \ "</string>
+
+    <string name="placeHolder">placeHolder</string>
+    <string name="seekbar_add">+</string>
+    <string name="seekbar_minus">-</string>
+    <string name="create">Generation</string>
+    <string name="scan_failed">Scan failed</string>
+    <string name="bottom_hint">Suggestions and lens holding 10CM distance , try to avoid backlighting and shadows</string>
+    <string name="top_hint">Place QR Code within the frame</string>
+    <string name="cancel">cancel</string>
+    <string name="msg_camera_framework_bug">Sorry , the Android camera problems . You may need to restart the device .</string>
+    <string name="button_ok">determine</string>
+
+    <string name="permission_camera_rationale">This App needs to access Camera to present you with the Demo.</string>
+    <string name="permission_vibrate_rationale">Vibration Permission is required to present you with the Demo.</string>
+
+    <string name="title_activity_main">MainActivity</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="Add_New">Add New</string>
+    <string name="edit">Edit Person</string>
+    <string name="delete">Delete Person</string>
+    <string name="save">Save Person</string>
+
+    <string name="name">Name</string>
+    <string name="gender">Gender</string>
+    <string name="age">Age</string>
+
+
+    <string name="deletePerson">Confirm person deletion.</string>
+    <string name="yes">Confirm</string>
+    <string name="no">Cancel</string>
+    <string name="title_activity_activity_edit">CreateOrEditActivity</string>
+
+    <string name="device_date">Date: </string>
+    <string name="device_time">Time: </string>
+    <string name="device_location">Location: </string>
+    <string name="device_owner">Owner: </string>
+    <string name="device_email">Email: </string>
+    <string name="device_phone">Phone: </string>
+    <string name="device_sim">SIM: </string>
+
+    <string name="device_manufacture"> Manufacturer: </string>
+    <string name="device_model">Model: </string>
+    <string name="device_serial">Serial: </string>
+    <string name="device_release">Release: </string>
+    <string name="device_os_version">OS Version: </string>
+    <string name="device_os_api_level">OS API Level: </string>
+    <string name="device_brand">Brand: </string>
+    <string name="device_device">Device: </string>
+    <string name="device_product">Product: </string>
+    <string name="device_display">Display: </string>
+    <string name="device_cpu_abi">CPU_ABI: </string>
+    <string name="device_cpu_abi2">CPU_ABI2: </string>
+    <string name="device_unknown">Unknown: </string>
+    <string name="device_hardware">Hardware: </string>
+    <string name="device_build_id">Build ID: </string>
+    <string name="device_user">User: </string>
+    <string name="device_host">Host: </string>
+
+</resources>

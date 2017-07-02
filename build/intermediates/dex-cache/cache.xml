@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        is-multidex="true"
+        jar="C:\Users\sdmei\OneDrive\Documents\GitHub\DeviceUserInfoReader\app\libs\core-3.1.1-SNAPSHOT.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="5589d0e71fbbd91262d1aa6c8e153ff211ec9fe0">
+        <dex dex="C:\Users\sdmei\OneDrive\Documents\GitHub\DeviceUserInfoReader\app\build\intermediates\transforms\dex\debug\folders\1000\2\core-3.1.1-SNAPSHOT_a1f99a35b66b710d568868b8a49e638c3d66f6a5\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\sdmei\OneDrive\Documents\GitHub\DeviceUserInfoReader\app\build\intermediates\incremental-runtime-classes\debug\instant-run.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="3be78ebc2706b2e1fe2f12d5726887a92d6c183b">
+        <dex dex="C:\Users\sdmei\OneDrive\Documents\GitHub\DeviceUserInfoReader\app\build\intermediates\transforms\dex\debug\folders\1000\10000\instant-run_90c05cb6fe655d972119f43675253cedf4d6eed6\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\sdmei\OneDrive\Documents\GitHub\DeviceUserInfoReader\app\libs\guavalib.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="4dad6eb644b525f4222e3c55d31c16660bacb92e">
+        <dex dex="C:\Users\sdmei\OneDrive\Documents\GitHub\DeviceUserInfoReader\app\build\intermediates\transforms\dex\debug\folders\1000\2\guavalib_c21c0e6efb749477ea112ff68e9c0dbd773e7295\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\sdmei\OneDrive\Documents\GitHub\DeviceUserInfoReader\app\build\intermediates\incremental-classes\debug\instant-run-bootstrap.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="c6e02d01d21312974607c8dcd584c263161d9c8b">
+        <dex dex="C:\Users\sdmei\OneDrive\Documents\GitHub\DeviceUserInfoReader\app\build\intermediates\transforms\dex\debug\folders\1000\10000\instant-run-bootstrap_f01a8bc1dc142f1144f9a742859081415ea3c319\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\sdmei\OneDrive\Documents\GitHub\DeviceUserInfoReader\app\libs\zbar.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="b7350ba6ec0fd2beac4e95d75410da582cec5baa">
+        <dex dex="C:\Users\sdmei\OneDrive\Documents\GitHub\DeviceUserInfoReader\app\build\intermediates\transforms\dex\debug\folders\1000\2\zbar_292b506dc26f983fac55670f825e59df354ee6c6\classes.dex" />
+    </item>
+
+</items>
