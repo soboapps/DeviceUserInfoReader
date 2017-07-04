@@ -3,7 +3,8 @@ Working Scanner, Still working on SQL
 
 This is the Scanner App for User App (https://github.com/soboapps/DeviceInfo)
 
-I wanted this to be able to do Inventory on a devices location. 
+I wanted this to be able to do Inventory on a devices location within a building.  
+User can check in at a location or check out of the building for the day.
 
 Store the info in a DB
 ToDo... Upload/Sync DB to a WebServer to track the Device.
