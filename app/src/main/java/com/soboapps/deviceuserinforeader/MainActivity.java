@@ -1,6 +1,7 @@
 package com.soboapps.deviceuserinforeader;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -9,15 +10,20 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.Build;
+import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -30,7 +36,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String TAG = "MainActivity";
+    //private static final String TAG = "MainActivity";
 
     int MyVersion = Build.VERSION.SDK_INT;
 
@@ -44,20 +50,42 @@ public class MainActivity extends AppCompatActivity {
     final private int REQUEST_MULTIPLE_PERMISSIONS = 124;
 
     public String capturedQRcodeString;
+    public String status;
+    public String deviceUserInfoList;
+    public String allDeviceUserInfo;
+    public String owner;
+    public String email;
+    public String phone;
+    public String manufacturer;
+    public String model;
+    public String serial;
+    public String sim;
+    public String date;
+    public String time;
 
     public final static String KEY_EXTRA_CONTACT_ID = "KEY_EXTRA_CONTACT_ID";
 
     private SQLController dbcon;
-    private ListView listView;
+    //private DataListView dataListView;
 
-    Boolean DeviceLocation = true;
+
+    Boolean deviceStatus = true;
 
     DBHelper DBHelper;
+
+    public static CustomCursorAdapter customAdapter;
+
+    private static final int ENTER_DATA_REQUEST_CODE = 1;
+    private static ListView listView;
+
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        DBHelper = new DBHelper(this);
 
         log_in = (Button)findViewById(R.id.btnLogIn);
 
@@ -68,20 +96,85 @@ public class MainActivity extends AppCompatActivity {
         dbcon = new SQLController(this);
         dbcon.open();
 
+        //listView = (ListView) findViewById(R.id.listView1);
+        //listView.setEmptyView(findViewById(R.id.empty));
+
         listView = (ListView) findViewById(R.id.listView1);
-        listView.setEmptyView(findViewById(R.id.empty));
+
+        // Database query can be a time consuming task ..
+        // so its safe to call database query in another thread
+        // Handler, will handle this stuff for you <img src="http://s0.wp.com/wp-includes/images/smilies/icon_smile.gif?m=1129645325g" alt=":)" class="wp-smiley">
+
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                customAdapter = new CustomCursorAdapter(MainActivity.this, dbcon.getActiveDevices());
+                listView.setAdapter(customAdapter);
+            }
+        });
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.d(TAG, "clicked on item: " + position);
+
+                String Owner =((TextView)view.findViewById(R.id.tvOwner)).getText().toString();
+                String Email =((TextView)view.findViewById(R.id.tvEmail)).getText().toString();
+                String Phone =((TextView)view.findViewById(R.id.tvPhone)).getText().toString();
+                String Manufacturer =((TextView)view.findViewById(R.id.tvManufacturer)).getText().toString();
+                String Model =((TextView)view.findViewById(R.id.tvModel)).getText().toString();
+                String Serial =((TextView)view.findViewById(R.id.tvSerial)).getText().toString();
+                String Sim =((TextView)view.findViewById(R.id.tvSim)).getText().toString();
+                String Date =((TextView)view.findViewById(R.id.tvDate)).getText().toString();
+                String Time =((TextView)view.findViewById(R.id.tvTime)).getText().toString();
+                String Status =((TextView)view.findViewById(R.id.tvStatus)).getText().toString();
+
+                String alertDialogList =
+                        "\n" + " " + getString(R.string.device_email) + " " +  Email +
+                        "\n" + " " + getString(R.string.device_phone) + " " +  Phone +
+                        "\n" + " " + getString(R.string.device_manufacture) + " " +  Manufacturer +
+                        "\n" + " " + getString(R.string.device_model) + " " +  Model +
+                        "\n" + " " + getString(R.string.device_serial) + " " +  Serial +
+                        "\n" + " " + getString(R.string.device_sim) + " " +  Sim +
+                        "\n" + " " + getString(R.string.device_date) + " " + Date +
+                        "\n" + " " + getString(R.string.device_time) + " " + Time;
+                        //"\n" + " " + getString(R.string.device_status) + " " + Status;;
+
+                Log.d("string",alertDialogList);
+
+                //Toast.makeText(MainActivity.this, alertDialogList, Toast.LENGTH_SHORT).show();
+
+                AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+                //dialog.setCancelable(false);
+                dialog.setTitle(Owner);
+                dialog.setMessage(alertDialogList);
+                dialog.setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int id) {
+
+                    }
+                });
+
+                final AlertDialog alert = dialog.create();
+                alert.show();
+            }
+        });
+
+
 
         // Attach The Data From DataBase Into ListView Using Crusor Adapter
-        Cursor cursor = dbcon.fetch();
+        Cursor cursor = dbcon.fetchDevice();
         String[] from = new String[] { DBHelper._ID, DBHelper.DEVICEINFO_OWNER, DBHelper.DEVICEINFO_EMAIL,
                 DBHelper.DEVICEINFO_PHONE_NUMBER, DBHelper.DEVICEINFO_MANUFACTURER, DBHelper.DEVICEINFO_MODEL,
                 DBHelper.DEVICEINFO_SERIAL_NUMBMER, DBHelper.DEVICEINFO_SIM, DBHelper.DEVICEINFO_DATE,
-                DBHelper.DEVICEINFO_TIME, DBHelper.DEVICEINFO_LOCATION };
+                DBHelper.DEVICEINFO_TIME, DBHelper.DEVICEINFO_STATUS };
 
         //int[] to = new int[] { R.id.id, R.id.title, R.id.desc };
         //SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.activity_main, cursor, from, to);
         //adapter.notifyDataSetChanged();
         //listView.setAdapter(adapter);
+
 
         log_in.setOnClickListener(new View.OnClickListener() {
 
@@ -119,52 +212,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //openAndQueryDatabase();
-        //displayResultList();
-    }
-
-    /*
-    private void openAndQueryDatabase() {
-
-        SQLiteDatabase newDB = null;
-        try {
-            DBHelper = new DBHelper(this.getApplicationContext());
-            newDB = DBHelper.getWritableDatabase();
-            Cursor c = newDB.rawQuery("SELECT OWNER, MODEL, SERIAL FROM " +
-                    DBHelper.getDatabaseName() +
-                    " where Location == True", null);
-
-            if (c != null ) {
-                if  (c.moveToFirst()) {
-                    do {
-                        String owner = c.getString(c.getColumnIndex("owner"));
-                        String model = c.getString(c.getColumnIndex("model"));
-                        results.add("Owner: " + owner + ",Model: " + model);
-                    }while (c.moveToNext());
-                }
-            }
-        } catch (SQLiteException se ) {
-            Log.e(getClass().getSimpleName(), "Could not create or Open the database");
-        } finally {
-            if (newDB != null)
-                newDB.execSQL("DELETE FROM " + DBHelper.getDatabaseName());
-            newDB.close();
-        }
 
     }
-
-    private void displayResultList() {
-        TextView tView = new TextView(this);
-        tView.setText("This data is retrieved from the database and only 4 " +
-                "of the results are displayed");
-        getListView().addHeaderView(tView);
-
-        setListAdapter(new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, results));
-        getListView().setTextFilterEnabled(true);
-
-    }
-    */
 
     private boolean checkIfAlreadyhavePermission() {
         if (resultGet_Camera == PackageManager.PERMISSION_GRANTED &&
@@ -182,9 +231,9 @@ public class MainActivity extends AppCompatActivity {
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA,
                 Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},REQUEST_MULTIPLE_PERMISSIONS);
         if (MyVersion == Build.VERSION_CODES.M) {
-            //Restart to because od bug in ver 6.x
+            //Restart app because of bug in ver 6.x to set permissions
             android.os.Process.killProcess(android.os.Process.myPid());
-            } else {
+        } else {
             // Do Nothing
         }
     }
@@ -198,10 +247,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void onScanDeviceUserInfo() {
         // Click action to Scan QR Code
-        //loggedIn = getResources().getString(R.string.logged_in);
         Intent intentIn = new Intent(MainActivity.this, CaptureActivity.class);
         startActivityForResult(intentIn, CAPTURE_ACTIVITY_RESULT_CODE);
         //Toast.makeText(getApplicationContext(),"Looged IN", Toast.LENGTH_LONG).show();
+
     }
 
     public void restart(){
@@ -225,49 +274,43 @@ public class MainActivity extends AppCompatActivity {
                 capturedQRcodeString = data.getStringExtra("qrcodevalue");
                 //Toast.makeText(getApplicationContext(),message, Toast.LENGTH_LONG).show();
 
-                //String str = capturedQRcodeString;
-                //List<String> deviceUserInfoList = Arrays.asList(str.split(","));
-
+                //Get the QR Code and split it up into a nice neat string
                 final String str = capturedQRcodeString;
                 String device_info_list[] = str.split(",");
 
-                final String owner = device_info_list[0];
-                final String email = device_info_list[1];
-                final String phone = device_info_list[2];
-                final String manufacturer = device_info_list[3];
-                final String model = device_info_list[4];
-                final String serial = device_info_list[5];
-                final String sim = device_info_list[6];
-                final String date = device_info_list[7];
-                final String time = device_info_list[8];
-                //final String location = device_info_list[9];
+                owner = device_info_list[0];
+                email = device_info_list[1];
+                phone = device_info_list[2];
+                manufacturer = device_info_list[3];
+                model = device_info_list[4];
+                serial = device_info_list[5];
+                sim = device_info_list[6];
+                date = device_info_list[7];
+                time = device_info_list[8];
 
-                //OWNER,EMAIL,PHONE,MANUFACTURER,MODEL,SERIAL,DATE,TIME
+                status = String.valueOf(deviceStatus);
 
-                final String location = String.valueOf(DeviceLocation);
-
-                String deviceUserInfoList =
+                deviceUserInfoList =
                         "\n" + " " + getString(R.string.device_email) + " " +  email +
-                        "\n" + " " + getString(R.string.device_phone) + " " +  phone +
-                        "\n" + " " + getString(R.string.device_manufacture) + " " +  manufacturer +
-                        "\n" + " " + getString(R.string.device_model) + " " +  model +
-                        "\n" + " " + getString(R.string.device_serial) + " " +  serial +
-                        "\n" + " " + getString(R.string.device_sim) + " " +  sim +
-                        "\n" + " " + getString(R.string.device_date) + " " + date +
-                        "\n" + " " + getString(R.string.device_date) + " " + time;
-                        //"\n" + " " + getString(R.string.device_location) + " " + location;
+                                "\n" + " " + getString(R.string.device_phone) + " " +  phone +
+                                "\n" + " " + getString(R.string.device_manufacture) + " " +  manufacturer +
+                                "\n" + " " + getString(R.string.device_model) + " " +  model +
+                                "\n" + " " + getString(R.string.device_serial) + " " +  serial +
+                                "\n" + " " + getString(R.string.device_sim) + " " +  sim +
+                                "\n" + " " + getString(R.string.device_date) + " " + date +
+                                "\n" + " " + getString(R.string.device_time) + " " + time;
 
-                String allDeviceUserInfo =
+                allDeviceUserInfo =
                         "\n" + " " + getString(R.string.device_owner) + " " +  owner +
-                        "\n" + " " + getString(R.string.device_email) + " " +  email +
-                        "\n" + " " + getString(R.string.device_phone) + " " +  phone +
-                        "\n" + " " + getString(R.string.device_manufacture) + " " +  manufacturer +
-                        "\n" + " " + getString(R.string.device_model) + " " +  model +
-                        "\n" + " " + getString(R.string.device_serial) + " " +  serial +
-                        "\n" + " " + getString(R.string.device_sim) + " " +  sim +
-                        "\n" + " " + getString(R.string.device_date) + " " + date +
-                        "\n" + " " + getString(R.string.device_date) + " " + time +
-                        "\n" + " " + getString(R.string.device_location) + " " + location;;
+                                "\n" + " " + getString(R.string.device_email) + " " +  email +
+                                "\n" + " " + getString(R.string.device_phone) + " " +  phone +
+                                "\n" + " " + getString(R.string.device_manufacture) + " " +  manufacturer +
+                                "\n" + " " + getString(R.string.device_model) + " " +  model +
+                                "\n" + " " + getString(R.string.device_serial) + " " +  serial +
+                                "\n" + " " + getString(R.string.device_sim) + " " +  sim +
+                                "\n" + " " + getString(R.string.device_date) + " " + date +
+                                "\n" + " " + getString(R.string.device_time) + " " + time +
+                                "\n" + " " + getString(R.string.device_status) + " " + status;;
 
                 //Toast.makeText(getApplicationContext(), String.valueOf(deviceUserInfoList), Toast.LENGTH_LONG).show();
                 Log.e(TAG, String.valueOf(allDeviceUserInfo));
@@ -281,8 +324,25 @@ public class MainActivity extends AppCompatActivity {
 
                     public void onClick(DialogInterface dialog, int id) {
 
-                        dbcon.insert(owner,email,phone,manufacturer,model,serial,sim,date,time,location);
-                        dbcon.fetch();
+                        String deviceID = String.valueOf(DBHelper._ID);
+                        //long dID = Long.parseLong(deviceID);
+
+                        dbcon.check(serial);
+
+                        if (dbcon.check(serial)==true){
+                            Toast.makeText(getApplicationContext()," true " + serial, Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(getApplicationContext(), "false" + serial, Toast.LENGTH_LONG).show();
+                        }
+
+                        dbcon.insertDevice(owner,email,phone,manufacturer,model,serial,sim,date,time,status);
+
+                        setDeviceStatus();
+
+                        dbcon.getActiveDevices();
+
+                        updateListView();
+
 
                     }
                 });
@@ -290,19 +350,38 @@ public class MainActivity extends AppCompatActivity {
                 final AlertDialog alert = dialog.create();
                 alert.show();
 
+
             }
         }
     }
 
-    public boolean setDeviceLocation(){
+    public boolean setDeviceStatus(){
+
+        if (deviceStatus == true){
+            deviceStatus = false;
+
+            //return true;
+        } else {
+            if (deviceStatus == false){
+                deviceStatus = true;
+
+            }
+            //return false;
+        }
         // Todo
         // Need to look in the DB to see if this device exists or not
         // Need unique ID such as SN to look up
-        // If Device does not exists, create a new record and mark Location as "IN"
-        // If the Device does exist, look up ID and mark Location as "OUT"
-
-
-        return DeviceLocation;
+        // If Device does not exists, create a new record and mark Status true as "IN"
+        // If the Device does exist, look up ID and mark Status false as "OUT"
+        // Update the Date and Time on existing devices as well as GPS Location
+        return deviceStatus;
     }
+
+    public void updateListView() {
+        customAdapter = new CustomCursorAdapter(MainActivity.this, dbcon.getActiveDevices());
+        listView.setAdapter(customAdapter);
+    }
+
+
 
 }

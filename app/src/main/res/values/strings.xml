@@ -63,6 +63,7 @@
     <string name="device_date">Date: </string>
     <string name="device_time">Time: </string>
     <string name="device_location">Location: </string>
+    <string name="device_status">Status: </string>
     <string name="device_owner">Owner: </string>
     <string name="device_email">Email: </string>
     <string name="device_phone">Phone: </string>
