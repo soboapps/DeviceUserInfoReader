@@ -1,46 +1,37 @@
 package com.soboapps.deviceuserinforeader;
 
 import android.Manifest;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.os.Build;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jinlin.zxing.CaptureActivity;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
-    //private static final String TAG = "MainActivity";
 
     int MyVersion = Build.VERSION.SDK_INT;
 
     public Button log_in;
+    public Button show_all;
+    public Button button;
 
     private int resultGet_Camera;
     private int resultWrite_External_Storage;
@@ -49,10 +40,13 @@ public class MainActivity extends AppCompatActivity {
     private static final int CAPTURE_ACTIVITY_RESULT_CODE = 0;
     final private int REQUEST_MULTIPLE_PERMISSIONS = 124;
 
+    public String getDate;
+    public String getTime;
     public String capturedQRcodeString;
     public String status;
     public String deviceUserInfoList;
     public String allDeviceUserInfo;
+    public String myid;
     public String owner;
     public String email;
     public String phone;
@@ -62,20 +56,22 @@ public class MainActivity extends AppCompatActivity {
     public String sim;
     public String date;
     public String time;
+    public String datein;
+    public String dateout;
+    public String timein;
+    public String timeout;
+    public String site;
 
-    public final static String KEY_EXTRA_CONTACT_ID = "KEY_EXTRA_CONTACT_ID";
+    public String myNewId;
+
+    public int id;
 
     private SQLController dbcon;
-    //private DataListView dataListView;
-
-
-    Boolean deviceStatus = true;
 
     DBHelper DBHelper;
 
     public static CustomCursorAdapter customAdapter;
 
-    private static final int ENTER_DATA_REQUEST_CODE = 1;
     private static ListView listView;
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -85,9 +81,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+
         DBHelper = new DBHelper(this);
 
         log_in = (Button)findViewById(R.id.btnLogIn);
+        show_all = (Button)findViewById(R.id.btnShowAllRecords);
+        button = (Button)findViewById(R.id.button);
 
         resultGet_Camera = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
         resultWrite_External_Storage = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -96,15 +96,11 @@ public class MainActivity extends AppCompatActivity {
         dbcon = new SQLController(this);
         dbcon.open();
 
-        //listView = (ListView) findViewById(R.id.listView1);
-        //listView.setEmptyView(findViewById(R.id.empty));
-
         listView = (ListView) findViewById(R.id.listView1);
 
         // Database query can be a time consuming task ..
         // so its safe to call database query in another thread
         // Handler, will handle this stuff for you <img src="http://s0.wp.com/wp-includes/images/smilies/icon_smile.gif?m=1129645325g" alt=":)" class="wp-smiley">
-
         new Handler().post(new Runnable() {
             @Override
             public void run() {
@@ -119,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Log.d(TAG, "clicked on item: " + position);
 
+                String MyId =((TextView)view.findViewById(R.id.tvMyId)).getText().toString();
                 String Owner =((TextView)view.findViewById(R.id.tvOwner)).getText().toString();
                 String Email =((TextView)view.findViewById(R.id.tvEmail)).getText().toString();
                 String Phone =((TextView)view.findViewById(R.id.tvPhone)).getText().toString();
@@ -126,27 +123,34 @@ public class MainActivity extends AppCompatActivity {
                 String Model =((TextView)view.findViewById(R.id.tvModel)).getText().toString();
                 String Serial =((TextView)view.findViewById(R.id.tvSerial)).getText().toString();
                 String Sim =((TextView)view.findViewById(R.id.tvSim)).getText().toString();
-                String Date =((TextView)view.findViewById(R.id.tvDate)).getText().toString();
-                String Time =((TextView)view.findViewById(R.id.tvTime)).getText().toString();
+                String DateIn =((TextView)view.findViewById(R.id.tvDateIn)).getText().toString();
+                String DateOut =((TextView)view.findViewById(R.id.tvDateOut)).getText().toString();
+                String TimeIn =((TextView)view.findViewById(R.id.tvTimeIn)).getText().toString();
+                String TimeOut =((TextView)view.findViewById(R.id.tvTimeOut)).getText().toString();
+                String Site =((TextView)view.findViewById(R.id.tvSite)).getText().toString();
                 String Status =((TextView)view.findViewById(R.id.tvStatus)).getText().toString();
 
                 String alertDialogList =
+                        "\n" + " " + getString(R.string.device_myid) + " " +  MyId +
                         "\n" + " " + getString(R.string.device_email) + " " +  Email +
                         "\n" + " " + getString(R.string.device_phone) + " " +  Phone +
                         "\n" + " " + getString(R.string.device_manufacture) + " " +  Manufacturer +
                         "\n" + " " + getString(R.string.device_model) + " " +  Model +
                         "\n" + " " + getString(R.string.device_serial) + " " +  Serial +
                         "\n" + " " + getString(R.string.device_sim) + " " +  Sim +
-                        "\n" + " " + getString(R.string.device_date) + " " + Date +
-                        "\n" + " " + getString(R.string.device_time) + " " + Time;
+                        "\n" + " " + getString(R.string.device_date_in) + " " + DateIn +
+                        "\n" + " " + getString(R.string.device_date_out) + " " + DateOut +
+                        "\n" + " " + getString(R.string.device_time_in) + " " + TimeIn +
+                        "\n" + " " + getString(R.string.device_time_out) + " " + TimeOut +
+                        "\n" + " " + getString(R.string.device_site) + " " + Site;
                         //"\n" + " " + getString(R.string.device_status) + " " + Status;;
 
                 Log.d("string",alertDialogList);
 
+                // Toast used for Debugging flow
                 //Toast.makeText(MainActivity.this, alertDialogList, Toast.LENGTH_SHORT).show();
 
                 AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
-                //dialog.setCancelable(false);
                 dialog.setTitle(Owner);
                 dialog.setMessage(alertDialogList);
                 dialog.setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
@@ -161,21 +165,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-
-        // Attach The Data From DataBase Into ListView Using Crusor Adapter
-        Cursor cursor = dbcon.fetchDevice();
-        String[] from = new String[] { DBHelper._ID, DBHelper.DEVICEINFO_OWNER, DBHelper.DEVICEINFO_EMAIL,
-                DBHelper.DEVICEINFO_PHONE_NUMBER, DBHelper.DEVICEINFO_MANUFACTURER, DBHelper.DEVICEINFO_MODEL,
-                DBHelper.DEVICEINFO_SERIAL_NUMBMER, DBHelper.DEVICEINFO_SIM, DBHelper.DEVICEINFO_DATE,
-                DBHelper.DEVICEINFO_TIME, DBHelper.DEVICEINFO_STATUS };
-
-        //int[] to = new int[] { R.id.id, R.id.title, R.id.desc };
-        //SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.activity_main, cursor, from, to);
-        //adapter.notifyDataSetChanged();
-        //listView.setAdapter(adapter);
-
-
         log_in.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -185,14 +174,13 @@ public class MainActivity extends AppCompatActivity {
 
                         if (MyVersion == Build.VERSION_CODES.M) {
                             AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
-                            //dialog.setCancelable(false);
-                            //dialog.setTitle(R.string.alert_dialog_title);
                             dialog.setTitle("Restart Required...");
                             dialog.setMessage("Because of a Bug in Android M, you must restart the " +
                                     "Appication after you have allowed the permissions");
                             dialog.setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
 
                                 public void onClick(DialogInterface dialog, int id) {
+                                    // Toast used for Debugging flow
                                     //Toast.makeText(getApplicationContext(),"No Permissions", Toast.LENGTH_LONG).show();
                                     requestForSpecificPermission();
                                 }
@@ -200,11 +188,13 @@ public class MainActivity extends AppCompatActivity {
                             final AlertDialog alert = dialog.create();
                             alert.show();
                         } else {
+                            // Toast used for Debugging flow
                             //Toast.makeText(getApplicationContext(),"No Permissions", Toast.LENGTH_LONG).show();
                             requestForSpecificPermission();
                         }
 
                     } else {
+                        // Toast used for Debugging flow
                         //Toast.makeText(getApplicationContext(),"Permissions Granted", Toast.LENGTH_LONG).show();
                         onScanDeviceUserInfo();
                     }
@@ -212,6 +202,22 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+        // Button For Dev only, will move to menu when ready
+        show_all.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onShowAllRecords();
+            }
+        });
+
+        // Button For Dev only
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onShowSQL();
+            }
+        });
 
     }
 
@@ -240,17 +246,29 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        // Toast used for Debugging flow
         //Toast.makeText(getApplicationContext(),"Permissions where Granted", Toast.LENGTH_LONG).show();
         onScanDeviceUserInfo();
     }
-
 
     public void onScanDeviceUserInfo() {
         // Click action to Scan QR Code
         Intent intentIn = new Intent(MainActivity.this, CaptureActivity.class);
         startActivityForResult(intentIn, CAPTURE_ACTIVITY_RESULT_CODE);
+        // Toast used for Debugging flow
         //Toast.makeText(getApplicationContext(),"Looged IN", Toast.LENGTH_LONG).show();
+    }
 
+    public void onShowAllRecords() {
+        // Click action to SHow All Records in DB
+        Intent intent = new Intent(MainActivity.this, AllLoggedDevices.class);
+        this.startActivity(intent);
+    }
+
+    public void onShowSQL() {
+        // Click action to Show SQL DB
+        Intent intent = new Intent(MainActivity.this, AndroidDatabaseManager.class);
+        this.startActivity(intent);
     }
 
     public void restart(){
@@ -272,6 +290,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // get String data from Intent
                 capturedQRcodeString = data.getStringExtra("qrcodevalue");
+                // Toast used for Debugging flow
                 //Toast.makeText(getApplicationContext(),message, Toast.LENGTH_LONG).show();
 
                 //Get the QR Code and split it up into a nice neat string
@@ -285,12 +304,11 @@ public class MainActivity extends AppCompatActivity {
                 model = device_info_list[4];
                 serial = device_info_list[5];
                 sim = device_info_list[6];
-                date = device_info_list[7];
-                time = device_info_list[8];
-
-                status = String.valueOf(deviceStatus);
+                date = device_info_list[7]; //These are not being used to populate the record
+                time = device_info_list[8]; //Currently  reading the scanners Date & Time of scan
 
                 deviceUserInfoList =
+                        "\n" + " " + getString(R.string.device_myid) + " " +  myid +
                         "\n" + " " + getString(R.string.device_email) + " " +  email +
                                 "\n" + " " + getString(R.string.device_phone) + " " +  phone +
                                 "\n" + " " + getString(R.string.device_manufacture) + " " +  manufacturer +
@@ -301,48 +319,94 @@ public class MainActivity extends AppCompatActivity {
                                 "\n" + " " + getString(R.string.device_time) + " " + time;
 
                 allDeviceUserInfo =
-                        "\n" + " " + getString(R.string.device_owner) + " " +  owner +
+                        "\n" + " " + getString(R.string.device_myid) + " " +  myid +
+                                "\n" + " " + getString(R.string.device_owner) + " " +  owner +
                                 "\n" + " " + getString(R.string.device_email) + " " +  email +
                                 "\n" + " " + getString(R.string.device_phone) + " " +  phone +
                                 "\n" + " " + getString(R.string.device_manufacture) + " " +  manufacturer +
                                 "\n" + " " + getString(R.string.device_model) + " " +  model +
                                 "\n" + " " + getString(R.string.device_serial) + " " +  serial +
                                 "\n" + " " + getString(R.string.device_sim) + " " +  sim +
-                                "\n" + " " + getString(R.string.device_date) + " " + date +
-                                "\n" + " " + getString(R.string.device_time) + " " + time +
-                                "\n" + " " + getString(R.string.device_status) + " " + status;;
+                                "\n" + " " + getString(R.string.device_date_in) + " " + datein +
+                                "\n" + " " + getString(R.string.device_date_out) + " " + dateout +
+                                "\n" + " " + getString(R.string.device_time_in) + " " + timein +
+                                "\n" + " " + getString(R.string.device_time_out) + " " + timeout +
+                                "\n" + " " + getString(R.string.device_site) + " " + site +
+                                "\n" + " " + getString(R.string.device_status) + " " + status;
 
+                // Toast used for Debugging flow
                 //Toast.makeText(getApplicationContext(), String.valueOf(deviceUserInfoList), Toast.LENGTH_LONG).show();
                 Log.e(TAG, String.valueOf(allDeviceUserInfo));
                 Log.e(TAG, str);
 
                 AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
-                //dialog.setCancelable(false);
                 dialog.setTitle(owner);
                 dialog.setMessage(deviceUserInfoList);
                 dialog.setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
 
                     public void onClick(DialogInterface dialog, int id) {
 
-                        String deviceID = String.valueOf(DBHelper._ID);
-                        //long dID = Long.parseLong(deviceID);
+                        if (dbcon.checkExist(serial) == false){
 
-                        dbcon.check(serial);
+                            getDate = new SimpleDateFormat("MM-dd-yyyy").format(Calendar.getInstance().getTime());
+                            getTime = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
 
-                        if (dbcon.check(serial)==true){
-                            Toast.makeText(getApplicationContext()," true " + serial, Toast.LENGTH_LONG).show();
+                            datein = getDate;
+                            timein = getTime;
+                            dateout = null;
+                            timeout = null;
+                            myNewId = null;
+                            dbcon.insertDevice(myNewId,owner,email,phone,manufacturer,model,serial,sim,datein,dateout,timein,timeout,site,"true");
+                            dbcon.insertDeviceArchive(myNewId,owner,email,phone,manufacturer,model,serial,sim,datein,dateout,timein,timeout,site,"true");
+
+                            // Need to change this to something more elegant
+                            Toast toast = Toast.makeText(getApplicationContext()," New Log Entry ", Toast.LENGTH_LONG);
+                            toast.setGravity(Gravity.CENTER_VERTICAL|Gravity.CENTER_HORIZONTAL, 0, 0);
+                            toast.show();
+
                         } else {
-                            Toast.makeText(getApplicationContext(), "false" + serial, Toast.LENGTH_LONG).show();
+
+                            String myStatus = dbcon.checkStatus(serial);
+                            int myId = dbcon.getIdBySn(serial);
+
+                            myId = dbcon.getIdBySn(serial);
+                            myNewId = Integer.toString(myId) + serial;
+
+                            // Toast used for Debugging flow
+                            //Toast.makeText(getApplicationContext(), myNewId, Toast.LENGTH_LONG).show();
+                            //Toast.makeText(getApplicationContext(), " Exisiting Device " + serial, Toast.LENGTH_LONG).show();
+
+                            if (myStatus.equals("")) {
+                                Toast.makeText(getApplicationContext(), " Error: Invalid QR Code " + serial, Toast.LENGTH_LONG).show();
+                                return;
+                            }
+
+                            myId = dbcon.getIdBySn(serial);
+                            myNewId = Integer.toString(myId) + serial;
+
+                            getDate = new SimpleDateFormat("MM-dd-yyyy").format(Calendar.getInstance().getTime());
+                            getTime = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
+
+                            dateout = getDate;
+                            timeout = getTime;
+
+                            dbcon.updateDeviceArchive(myId,myNewId,owner,email,phone,manufacturer,model,serial,sim,datein,dateout,timein,timeout,"BOP","false");
+
+                            // Need to change this to something more elegant
+                            Toast toast = Toast.makeText(getApplicationContext()," User Logged Out ", Toast.LENGTH_LONG);
+                            toast.setGravity(Gravity.CENTER_VERTICAL|Gravity.CENTER_HORIZONTAL, 0, 0);
+                            toast.show();
+
+                            dbcon.deleteDevice(myId);
+
+                            // Toast used for Debugging flow
+                            //Toast.makeText(getApplicationContext(), "Device Deleted and Archived", Toast.LENGTH_LONG).show();
+
                         }
 
-                        dbcon.insertDevice(owner,email,phone,manufacturer,model,serial,sim,date,time,status);
-
-                        setDeviceStatus();
-
-                        dbcon.getActiveDevices();
-
+                        dbcon.getAllDevices();
+                        dbcon.getAllDevicesArchive();
                         updateListView();
-
 
                     }
                 });
@@ -350,38 +414,13 @@ public class MainActivity extends AppCompatActivity {
                 final AlertDialog alert = dialog.create();
                 alert.show();
 
-
             }
         }
-    }
-
-    public boolean setDeviceStatus(){
-
-        if (deviceStatus == true){
-            deviceStatus = false;
-
-            //return true;
-        } else {
-            if (deviceStatus == false){
-                deviceStatus = true;
-
-            }
-            //return false;
-        }
-        // Todo
-        // Need to look in the DB to see if this device exists or not
-        // Need unique ID such as SN to look up
-        // If Device does not exists, create a new record and mark Status true as "IN"
-        // If the Device does exist, look up ID and mark Status false as "OUT"
-        // Update the Date and Time on existing devices as well as GPS Location
-        return deviceStatus;
     }
 
     public void updateListView() {
         customAdapter = new CustomCursorAdapter(MainActivity.this, dbcon.getActiveDevices());
         listView.setAdapter(customAdapter);
     }
-
-
 
 }

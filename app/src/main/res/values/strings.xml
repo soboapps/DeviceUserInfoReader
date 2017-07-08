@@ -61,9 +61,15 @@
     <string name="title_activity_activity_edit">CreateOrEditActivity</string>
 
     <string name="device_date">Date: </string>
+    <string name="device_date_in">Date In: </string>
+    <string name="device_date_out">Date Out: </string>
     <string name="device_time">Time: </string>
+    <string name="device_time_in">Time In: </string>
+    <string name="device_time_out">Time Out: </string>
+    <string name="device_site">Location: </string>
     <string name="device_location">Location: </string>
     <string name="device_status">Status: </string>
+    <string name="device_myid">MyID: </string>
     <string name="device_owner">Owner: </string>
     <string name="device_email">Email: </string>
     <string name="device_phone">Phone: </string>

@@ -18,23 +18,26 @@ public class SQLController {
 
     public SQLController(Context c) {
         ourcontext = c;
-    }
+    } // end of method
 
     public SQLController open() throws SQLException {
         dbHelper = new DBHelper(ourcontext);
         database = dbHelper.getWritableDatabase();
         return this;
 
-    }
+    } // end of method
+
 
     public void close() {
         dbHelper.close();
-    }
+    } // end of method
 
-    public void insertDevice(String owner, String email, String phone, String manufacturer, String model,
-                       String serial, String sim, String date, String time, String status) {
+
+    public void insertDevice(String myid, String owner, String email, String phone, String manufacturer, String model,
+                       String serial, String sim, String datein, String dateout, String timein, String timeout, String site, String status) {
 
         ContentValues contentValues = new ContentValues();
+        contentValues.put(DBHelper.DEVICEINFO_MY_ID, myid);
         contentValues.put(DBHelper.DEVICEINFO_OWNER, owner);
         contentValues.put(DBHelper.DEVICEINFO_EMAIL, email);
         contentValues.put(DBHelper.DEVICEINFO_PHONE_NUMBER, phone);
@@ -42,65 +45,68 @@ public class SQLController {
         contentValues.put(DBHelper.DEVICEINFO_MODEL, model);
         contentValues.put(DBHelper.DEVICEINFO_SERIAL_NUMBMER, serial);
         contentValues.put(DBHelper.DEVICEINFO_SIM, sim);
-        contentValues.put(DBHelper.DEVICEINFO_DATE, date);
-        contentValues.put(DBHelper.DEVICEINFO_TIME, time);
+        contentValues.put(DBHelper.DEVICEINFO_DATE_IN, datein);
+        contentValues.put(DBHelper.DEVICEINFO_DATE_OUT, dateout);
+        contentValues.put(DBHelper.DEVICEINFO_TIME_IN, timein);
+        contentValues.put(DBHelper.DEVICEINFO_TIME_OUT, timeout);
+        contentValues.put(DBHelper.DEVICEINFO_SITE, site);
         contentValues.put(DBHelper.DEVICEINFO_STATUS, status);
         database.insert(DBHelper.DEVICEINFO_TABLE, null, contentValues);
 
-    }
+    } // end of method
 
 
-    public int numberOfRows() {
-        database = dbHelper.getReadableDatabase();
-        int numRows = (int) DatabaseUtils.queryNumEntries(database, DBHelper.DEVICEINFO_TABLE);
-        return numRows;
-    }
+    public void insertDeviceArchive(String myid, String owner, String email, String phone, String manufacturer, String model,
+                             String serial, String sim, String datein, String dateout, String timein, String timeout, String site, String status) {
 
-    public Cursor fetchDevice() {
-        String[] columns = new String[] { DBHelper.DEVICEINFO_OWNER, DBHelper.DEVICEINFO_EMAIL,
-                DBHelper.DEVICEINFO_PHONE_NUMBER, DBHelper.DEVICEINFO_MANUFACTURER, DBHelper.DEVICEINFO_MODEL,
-                DBHelper.DEVICEINFO_SERIAL_NUMBMER, DBHelper.DEVICEINFO_SIM, DBHelper.DEVICEINFO_DATE,
-                DBHelper.DEVICEINFO_TIME, DBHelper.DEVICEINFO_STATUS };
-        Cursor cursor = database.query(DBHelper.DEVICEINFO_TABLE, columns, null, null, null, null, null);
-        if (cursor != null) {
-            cursor.moveToFirst();
-            while(!cursor.isAfterLast()) {
-                Log.e(TAG, DatabaseUtils.dumpCurrentRowToString(cursor));
-                cursor.moveToNext();
-            }
-        }
-        return cursor;
-    }
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DBHelper.DEVICEINFO_MY_ID, myid);
+        contentValues.put(DBHelper.DEVICEINFO_OWNER, owner);
+        contentValues.put(DBHelper.DEVICEINFO_EMAIL, email);
+        contentValues.put(DBHelper.DEVICEINFO_PHONE_NUMBER, phone);
+        contentValues.put(DBHelper.DEVICEINFO_MANUFACTURER, manufacturer);
+        contentValues.put(DBHelper.DEVICEINFO_MODEL, model);
+        contentValues.put(DBHelper.DEVICEINFO_SERIAL_NUMBMER, serial);
+        contentValues.put(DBHelper.DEVICEINFO_SIM, sim);
+        contentValues.put(DBHelper.DEVICEINFO_DATE_IN, datein);
+        contentValues.put(DBHelper.DEVICEINFO_DATE_OUT, dateout);
+        contentValues.put(DBHelper.DEVICEINFO_TIME_IN, timein);
+        contentValues.put(DBHelper.DEVICEINFO_TIME_OUT, timeout);
+        contentValues.put(DBHelper.DEVICEINFO_SITE, site);
+        contentValues.put(DBHelper.DEVICEINFO_STATUS, status);
+        database.insert(DBHelper.DEVICEINFO_TABLE_ARCHIVE, null, contentValues);
 
-    public Cursor findDevice() {
-        String[] columns = new String[] { DBHelper._ID, DBHelper.DEVICEINFO_OWNER, DBHelper.DEVICEINFO_EMAIL,
-                DBHelper.DEVICEINFO_PHONE_NUMBER, DBHelper.DEVICEINFO_MANUFACTURER, DBHelper.DEVICEINFO_MODEL,
-                DBHelper.DEVICEINFO_SERIAL_NUMBMER, DBHelper.DEVICEINFO_SIM, DBHelper.DEVICEINFO_DATE,
-                DBHelper.DEVICEINFO_TIME, DBHelper.DEVICEINFO_STATUS };
-        Cursor cursor = database.query(DBHelper.DEVICEINFO_TABLE, columns, null, null, null, null, null);
-        if (cursor != null) {
-            cursor.moveToFirst();
-            while(!cursor.isAfterLast()) {
-                Log.e(TAG, DatabaseUtils.dumpCurrentRowToString(cursor));
-                cursor.moveToNext();
-            }
-        }
-        return cursor;
-    }
+    } // end of method
 
-    public Cursor getDevice(int id) {
-        //Cursor cursor = database.query(DBHelper.DEVICEINFO_TABLE, columns, null, null, null, null, null);
+    /******************************************
+     * <b>Description:</b> Returns database record
+     * based on Serial Number
+     *
+     * @param sn - Serival Number
+     * @return ContentValues
+     ******************************************/
+    public int getIdBySn(String sn) {
+
+        ContentValues record = new ContentValues();
+
         Cursor cursor =  database.rawQuery("SELECT * FROM " + DBHelper.DEVICEINFO_TABLE + " WHERE " +
-                DBHelper._ID + "=?", new String[]{Integer.toString(id)});
+                DBHelper.DEVICEINFO_SERIAL_NUMBMER + "=?", new String[]{sn});
+
         if (cursor != null) {
+
             cursor.moveToFirst();
-            while(!cursor.isAfterLast()) {
-                Log.e(TAG, DatabaseUtils.dumpCurrentRowToString(cursor));
-                cursor.moveToNext();
-            }
+             int myIndex = cursor.getColumnIndex(DBHelper._ID);
+
+             int iRecId = cursor.getInt(myIndex);
+             record.put(DBHelper._ID,iRecId);
+             return iRecId;
+
         }
-        return cursor;
-    }
+
+   return -1;
+    } // end of method
+
+
 
     public Cursor getActiveDevices() {
         //Cursor cursor = database.query(DBHelper.DEVICEINFO_TABLE, columns, null, null, null, null, null);
@@ -115,7 +121,8 @@ public class SQLController {
 
         }
         return cursor;
-    }
+    } // end of method
+
 
     public Cursor getAllDevices() {
         Cursor cursor =  database.rawQuery( "SELECT * FROM " + DBHelper.DEVICEINFO_TABLE, null );
@@ -127,52 +134,26 @@ public class SQLController {
             }
         }
         return cursor;
-    }
+    } // end of method
 
-    public int updateDevice(long _id, String owner, String email, String phone, String manufacturer, String model,
-                      String serial, String sim, String date, String time, String status) {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(DBHelper.DEVICEINFO_OWNER, owner);
-        contentValues.put(DBHelper.DEVICEINFO_EMAIL, email);
-        contentValues.put(DBHelper.DEVICEINFO_PHONE_NUMBER, phone);
-        contentValues.put(DBHelper.DEVICEINFO_MANUFACTURER, manufacturer);
-        contentValues.put(DBHelper.DEVICEINFO_MODEL, model);
-        contentValues.put(DBHelper.DEVICEINFO_SERIAL_NUMBMER, serial);
-        contentValues.put(DBHelper.DEVICEINFO_SIM, sim);
-        contentValues.put(DBHelper.DEVICEINFO_DATE, date);
-        contentValues.put(DBHelper.DEVICEINFO_TIME, time);
-        contentValues.put(DBHelper.DEVICEINFO_STATUS, status);
-        int i = database.update(DBHelper.DEVICEINFO_TABLE, contentValues,
-                DBHelper._ID + " = " + _id, null);
-        return i;
-    }
 
-    public void deleteDevice(long _id) {
-        database.delete(DBHelper.DEVICEINFO_TABLE, DBHelper._ID + "=" + _id, null);
-    }
-
-    public boolean check(String sn){
-        Cursor cursor =  database.rawQuery( "SELECT * FROM " + DBHelper.DEVICEINFO_TABLE, null );
-        int flag=0;
-        while (cursor.moveToNext()){
-            cursor.getLong(cursor.getColumnIndex("_id"));
-            String serial =cursor.getString(6);
-            if(serial.equals(sn)){
-                flag++;
+    public Cursor getAllDevicesArchive() {
+        Cursor cursor =  database.rawQuery( "SELECT * FROM " + DBHelper.DEVICEINFO_TABLE_ARCHIVE, null );
+        if (cursor != null) {
+            cursor.moveToFirst();
+            while(!cursor.isAfterLast()) {
+                Log.e(TAG, DatabaseUtils.dumpCurrentRowToString(cursor));
+                cursor.moveToNext();
             }
         }
-        if(flag==0){
-            return false;
-        }
-        else {
+        return cursor;
+    } // end of method
 
-            return true;
-        }
-    }
 
-    void updateIfExistsElseInsert(long _id, String owner, String email, String phone, String manufacturer, String model,
-                                  String serial, String sim, String date, String time, String status) {
+    public int updateDeviceArchive(long _id, String myid, String owner, String email, String phone, String manufacturer, String model,
+                            String serial, String sim, String datein, String dateout, String timein, String timeout, String site, String status) {
         ContentValues contentValues = new ContentValues();
+        contentValues.put(DBHelper.DEVICEINFO_MY_ID, myid);
         contentValues.put(DBHelper.DEVICEINFO_OWNER, owner);
         contentValues.put(DBHelper.DEVICEINFO_EMAIL, email);
         contentValues.put(DBHelper.DEVICEINFO_PHONE_NUMBER, phone);
@@ -180,24 +161,64 @@ public class SQLController {
         contentValues.put(DBHelper.DEVICEINFO_MODEL, model);
         contentValues.put(DBHelper.DEVICEINFO_SERIAL_NUMBMER, serial);
         contentValues.put(DBHelper.DEVICEINFO_SIM, sim);
-        contentValues.put(DBHelper.DEVICEINFO_DATE, date);
-        contentValues.put(DBHelper.DEVICEINFO_TIME, time);
+        contentValues.put(DBHelper.DEVICEINFO_DATE_IN, datein);
+        contentValues.put(DBHelper.DEVICEINFO_DATE_OUT, dateout);
+        contentValues.put(DBHelper.DEVICEINFO_TIME_IN, timein);
+        contentValues.put(DBHelper.DEVICEINFO_TIME_OUT, timeout);
+        contentValues.put(DBHelper.DEVICEINFO_SITE, site);
         contentValues.put(DBHelper.DEVICEINFO_STATUS, status);
-        int i = database.update(DBHelper.DEVICEINFO_TABLE, contentValues,
-                DBHelper._ID + " = " + _id, null);
-        if (i == 0) {
-            contentValues.put(DBHelper.DEVICEINFO_OWNER, owner);
-            contentValues.put(DBHelper.DEVICEINFO_EMAIL, email);
-            contentValues.put(DBHelper.DEVICEINFO_PHONE_NUMBER, phone);
-            contentValues.put(DBHelper.DEVICEINFO_MANUFACTURER, manufacturer);
-            contentValues.put(DBHelper.DEVICEINFO_MODEL, model);
-            contentValues.put(DBHelper.DEVICEINFO_SERIAL_NUMBMER, serial);
-            contentValues.put(DBHelper.DEVICEINFO_SIM, sim);
-            contentValues.put(DBHelper.DEVICEINFO_DATE, date);
-            contentValues.put(DBHelper.DEVICEINFO_TIME, time);
-            contentValues.put(DBHelper.DEVICEINFO_STATUS, status);
-            database.insert(DBHelper.DEVICEINFO_TABLE, null, contentValues);
-        }
-    }
+        int i = database.update(DBHelper.DEVICEINFO_TABLE_ARCHIVE, contentValues,
+                DBHelper._ID + "='"+_id+"'", null);
+        return i;
+    } // end of method
 
-}
+    public void deleteDevice(int _id) {
+        database.delete(DBHelper.DEVICEINFO_TABLE, DBHelper._ID + "=" + _id, null);
+    } // end of method
+
+
+    /******************************
+     * <b>Description:</b> This method delets Devices based on it Serial num
+     * @param sn - Serial Number
+     ******************************/
+    public void deleteDevice(String sn) {
+        database.delete(DBHelper.DEVICEINFO_TABLE, DBHelper.DEVICEINFO_SERIAL_NUMBMER+ "='"+sn+"'", null);
+    } // end of method
+
+
+    public boolean checkExist(String sn){
+
+        Cursor cursor =  database.rawQuery("SELECT * FROM " + DBHelper.DEVICEINFO_TABLE + " WHERE " +
+                DBHelper.DEVICEINFO_SERIAL_NUMBMER + "=?", new String[]{sn});
+
+
+        if(cursor == null)
+                 return false;
+
+        if(cursor.moveToNext())
+           return true;
+        else
+          return false;
+
+     } // end of method
+
+
+    public String checkStatus(String sn){
+
+        Cursor cursor =  database.rawQuery("SELECT * FROM " + DBHelper.DEVICEINFO_TABLE + " WHERE " +
+                DBHelper.DEVICEINFO_SERIAL_NUMBMER + "=?", new String[]{sn});
+
+        if(cursor == null)
+              return "";
+
+        if(cursor.moveToNext()) {
+            int myIndex = cursor.getColumnIndex(DBHelper.DEVICEINFO_STATUS);
+            return cursor.getString(myIndex);
+        } else {
+            return "";
+        }
+
+    } // end of method
+
+
+} // end of class

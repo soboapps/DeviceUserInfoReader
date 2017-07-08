@@ -36,6 +36,16 @@
         </activity>
 
         <activity
+            android:name=".AllLoggedDevices"
+            android:configChanges="orientation|keyboardHidden"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+
+        <activity
+            android:name=".AndroidDatabaseManager"
+            android:configChanges="orientation|keyboardHidden"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+
+        <activity
             android:name="com.jinlin.zxing.CaptureActivity"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait"
