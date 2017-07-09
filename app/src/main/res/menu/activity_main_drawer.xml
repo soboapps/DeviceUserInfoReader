@@ -4,7 +4,7 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_logbook"
-            android:icon="@drawable/ic_assignment_black_24dp"
+            android:icon="@drawable/ic_book_open_page_variant_black_24dp"
             android:title="@string/device_log_book" />
         <item
             android:id="@+id/nav_settings"
